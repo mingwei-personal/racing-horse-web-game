@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing Horse Web Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐎 Racing Horse Game 🐎</h1>
+        </header>
+
+        <!-- Game Setup Phase -->
+        <div id="setup-phase" class="phase">
+            <div class="setup-section">
+                <h2>Setup Your Race</h2>
+                <div class="horse-count-selection">
+                    <label for="horse-count">Select number of horses (1-8):</label>
+                    <input type="number" id="horse-count" min="1" max="8" value="4">
+                    <button id="confirm-count">Confirm</button>
+                </div>
+            </div>
+
+            <div id="naming-section" class="naming-section" style="display: none;">
+                <h3>Name Your Horses</h3>
+                <div id="horse-inputs"></div>
+                <button id="start-race" style="display: none;">Start Race!</button>
+            </div>
+        </div>
+
+        <!-- Racing Phase -->
+        <div id="racing-phase" class="phase" style="display: none;">
+            <div class="race-controls">
+                <button id="restart-game">New Game</button>
+            </div>
+            
+            <div class="race-track">
+                <div class="finish-line">🏁</div>
+                <div id="horses-container"></div>
+            </div>
+
+            <div id="race-status">
+                <p>Race in progress...</p>
+            </div>
+        </div>
+
+        <!-- Results Phase -->
+        <div id="results-phase" class="phase" style="display: none;">
+            <div class="results-container">
+                <h2>🏆 Race Results 🏆</h2>
+                <div id="winner-announcement"></div>
+                <div id="final-positions"></div>
+                <button id="play-again">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

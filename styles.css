@@ -1,0 +1,683 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Bradley Hand', cursive, sans-serif;
+    background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+    color: white;
+    text-align: center;
+    padding: 30px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Marker Felt', fantasy, cursive;
+    letter-spacing: 2px;
+}
+
+.phase {
+    padding: 30px;
+}
+
+/* Setup Phase Styles */
+.setup-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.setup-section h2 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2em;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Marker Felt', fantasy, cursive;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.horse-count-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.horse-count-selection label {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #555;
+}
+
+.horse-count-selection input {
+    padding: 10px;
+    font-size: 1.2em;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    width: 80px;
+}
+
+button {
+    background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Bradley Hand', fantasy, cursive;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Naming Section */
+.naming-section {
+    text-align: center;
+}
+
+.naming-section h3 {
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 1.5em;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Marker Felt', fantasy, cursive;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+#horse-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.horse-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    flex: 1 1 auto;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.horse-input label {
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap;
+    font-size: 0.9em;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Bradley Hand', cursive;
+}
+
+.horse-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+.horse-input input:focus {
+    outline: none;
+    border-color: #4ECDC4;
+}
+
+/* Racing Phase */
+.race-controls {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.race-track {
+    position: relative;
+    background: linear-gradient(to right, #90EE90 0%, #90EE90 95%, #FFD700 95%, #FFD700 100%);
+    border: 3px solid #8B4513;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 400px;
+    overflow: hidden;
+}
+
+/* Dynamic race track height based on number of horses */
+.race-track.track-1-horses {
+    min-height: 200px;
+}
+
+.race-track.track-2-horses {
+    min-height: 280px;
+}
+
+.race-track.track-3-horses {
+    min-height: 320px;
+}
+
+.race-track.track-4-horses {
+    min-height: 360px;
+}
+
+.race-track.track-5-horses {
+    min-height: 400px;
+}
+
+.race-track.track-6-horses {
+    min-height: 420px;
+}
+
+.race-track.track-7-horses {
+    min-height: 440px;
+}
+
+.race-track.track-8-horses {
+    min-height: 460px;
+}
+
+.finish-line {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3em;
+    z-index: 10;
+}
+
+#horses-container {
+    position: relative;
+    height: 100%;
+}
+
+.horse-lane {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    position: relative;
+    min-height: 50px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    padding: 5px;
+}
+
+/* Dynamic lane sizing based on number of horses */
+.horses-container-1 .horse-lane {
+    min-height: 120px;
+    margin: 30px 0;
+}
+
+.horses-container-2 .horse-lane {
+    min-height: 100px;
+    margin: 25px 0;
+}
+
+.horses-container-3 .horse-lane {
+    min-height: 80px;
+    margin: 20px 0;
+}
+
+.horses-container-4 .horse-lane {
+    min-height: 70px;
+    margin: 18px 0;
+}
+
+.horses-container-5 .horse-lane {
+    min-height: 60px;
+    margin: 15px 0;
+}
+
+.horses-container-6 .horse-lane {
+    min-height: 55px;
+    margin: 12px 0;
+}
+
+.horses-container-7 .horse-lane {
+    min-height: 50px;
+    margin: 10px 0;
+}
+
+.horses-container-8 .horse-lane {
+    min-height: 45px;
+    margin: 8px 0;
+}
+
+.horse {
+    position: absolute;
+    left: 0;
+    width: 70px;
+    height: 60px;
+    transition: left 0.5s ease-in-out;
+    z-index: 5;
+    filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.4));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Custom cartoon horse designs */
+.horse-design {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-origin: center;
+}
+
+/* Horse body */
+.horse-body {
+    position: absolute;
+    width: 42px;
+    height: 24px;
+    border-radius: 18px 6px 6px 18px;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Horse head */
+.horse-head {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50% 70% 50% 30%;
+    top: 3px;
+    right: 1px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Horse eyes */
+.horse-head::before {
+    content: '';
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #000;
+    border-radius: 50%;
+    top: 6px;
+    right: 4px;
+    box-shadow: 2px 0 0 #000;
+}
+
+/* Horse nostrils */
+.horse-head::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    bottom: 4px;
+    right: 2px;
+    box-shadow: 1px 0 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Horse legs */
+.horse-legs {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 10px;
+}
+
+.horse-leg {
+    position: absolute;
+    width: 4px;
+    height: 10px;
+    border-radius: 0 0 3px 3px;
+    bottom: 0;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.leg1 { left: 4px; }
+.leg2 { left: 12px; }
+.leg3 { right: 12px; }
+.leg4 { right: 4px; }
+
+/* Horse mane */
+.horse-mane {
+    position: absolute;
+    width: 10px;
+    height: 16px;
+    border-radius: 50% 0 50% 50%;
+    top: 6px;
+    right: 10px;
+    transform: rotate(-20deg);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Horse tail */
+.horse-tail {
+    position: absolute;
+    width: 6px;
+    height: 16px;
+    border-radius: 50%;
+    top: 14px;
+    left: 1px;
+    transform: rotate(30deg);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Horse colors */
+.horse-color-0 .horse-body, .horse-color-0 .horse-head { background: linear-gradient(45deg, #8B4513, #A0522D); }
+.horse-color-0 .horse-mane, .horse-color-0 .horse-tail { background: linear-gradient(45deg, #2F1B14, #654321); }
+.horse-color-0 .horse-leg { background: #654321; }
+
+.horse-color-1 .horse-body, .horse-color-1 .horse-head { background: linear-gradient(45deg, #000000, #2F2F2F); }
+.horse-color-1 .horse-mane, .horse-color-1 .horse-tail { background: linear-gradient(45deg, #000000, #1A1A1A); }
+.horse-color-1 .horse-leg { background: #1A1A1A; }
+
+.horse-color-2 .horse-body, .horse-color-2 .horse-head { background: linear-gradient(45deg, #FFFFFF, #F0F0F0); }
+.horse-color-2 .horse-mane, .horse-color-2 .horse-tail { background: linear-gradient(45deg, #E0E0E0, #C0C0C0); }
+.horse-color-2 .horse-leg { background: #C0C0C0; }
+
+.horse-color-3 .horse-body, .horse-color-3 .horse-head { background: linear-gradient(45deg, #FF6B35, #FF8E53); }
+.horse-color-3 .horse-mane, .horse-color-3 .horse-tail { background: linear-gradient(45deg, #FF4500, #FF6347); }
+.horse-color-3 .horse-leg { background: #FF4500; }
+
+.horse-color-4 .horse-body, .horse-color-4 .horse-head { background: linear-gradient(45deg, #4169E1, #6495ED); }
+.horse-color-4 .horse-mane, .horse-color-4 .horse-tail { background: linear-gradient(45deg, #1E90FF, #4169E1); }
+.horse-color-4 .horse-leg { background: #1E90FF; }
+
+.horse-color-5 .horse-body, .horse-color-5 .horse-head { background: linear-gradient(45deg, #32CD32, #90EE90); }
+.horse-color-5 .horse-mane, .horse-color-5 .horse-tail { background: linear-gradient(45deg, #228B22, #32CD32); }
+.horse-color-5 .horse-leg { background: #228B22; }
+
+.horse-color-6 .horse-body, .horse-color-6 .horse-head { background: linear-gradient(45deg, #FFD700, #FFA500); }
+.horse-color-6 .horse-mane, .horse-color-6 .horse-tail { background: linear-gradient(45deg, #FF8C00, #FFD700); }
+.horse-color-6 .horse-leg { background: #FF8C00; }
+
+.horse-color-7 .horse-body, .horse-color-7 .horse-head { background: linear-gradient(45deg, #FF1493, #FF69B4); }
+.horse-color-7 .horse-mane, .horse-color-7 .horse-tail { background: linear-gradient(45deg, #DC143C, #FF1493); }
+.horse-color-7 .horse-leg { background: #DC143C; }
+
+/* Running animation */
+.horse-running {
+    animation: gallop 0.4s infinite;
+}
+
+@keyframes gallop {
+    0%, 100% { 
+        transform: translateY(0px) scaleY(1) scaleX(1);
+    }
+    25% { 
+        transform: translateY(-3px) scaleY(0.92) scaleX(1.05);
+    }
+    50% { 
+        transform: translateY(-1px) scaleY(1.08) scaleX(0.95);
+    }
+    75% { 
+        transform: translateY(-2px) scaleY(0.96) scaleX(1.02);
+    }
+}
+
+/* Enhanced galloping for legs */
+.horse-running .horse-leg {
+    animation: legMovement 0.4s infinite;
+}
+
+@keyframes legMovement {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(10deg); }
+    50% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+/* Animated mane */
+.horse-running .horse-mane {
+    animation: maneFlow 0.8s infinite;
+}
+
+@keyframes maneFlow {
+    0%, 100% { transform: rotate(-20deg) scaleX(1); }
+    50% { transform: rotate(-25deg) scaleX(1.1); }
+}
+
+/* Animated tail */
+.horse-running .horse-tail {
+    animation: tailWag 0.6s infinite;
+}
+
+@keyframes tailWag {
+    0%, 100% { transform: rotate(30deg); }
+    50% { transform: rotate(35deg); }
+}
+
+.horse-name {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    color: #333;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Bradley Hand', cursive;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.horse.winner {
+    animation: celebration 1s infinite;
+}
+
+@keyframes celebration {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.15) rotate(-5deg); }
+    50% { transform: scale(1.2) rotate(0deg); }
+    75% { transform: scale(1.15) rotate(5deg); }
+}
+
+#race-status {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Marker Felt', fantasy, cursive;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Results Phase */
+.results-container {
+    text-align: center;
+}
+
+.results-container h2 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Marker Felt', fantasy, cursive;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#winner-announcement {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: #333;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    font-size: 1.5em;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Marker Felt', fantasy, cursive;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#final-positions {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.position-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background: white;
+    border-radius: 8px;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', 'Chalkduster', 'Bradley Hand', cursive;
+}
+
+.position-item:first-child {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: #333;
+}
+
+.position-item:nth-child(2) {
+    background: linear-gradient(45deg, #C0C0C0, #A9A9A9);
+    color: #333;
+}
+
+.position-item:nth-child(3) {
+    background: linear-gradient(45deg, #CD7F32, #A0522D);
+    color: white;
+}
+
+/* Dynamic layout adjustments for different numbers of horses */
+#horse-inputs.horses-1-2 {
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+}
+
+#horse-inputs.horses-3-4 {
+    max-width: 900px;
+    margin: 0 auto 30px auto;
+}
+
+#horse-inputs.horses-5-6 {
+    max-width: 1000px;
+    margin: 0 auto 30px auto;
+}
+
+#horse-inputs.horses-7-8 {
+    max-width: 1100px;
+    margin: 0 auto 30px auto;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .horse-input {
+        min-width: 250px;
+        max-width: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 10px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .horse-count-selection {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    #horse-inputs {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .horse-input {
+        min-width: 260px;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .race-track {
+        min-height: 300px;
+    }
+    
+    /* Adjust lane sizes for mobile */
+    .horses-container-1 .horse-lane { min-height: 80px; margin: 20px 0; }
+    .horses-container-2 .horse-lane { min-height: 70px; margin: 18px 0; }
+    .horses-container-3 .horse-lane { min-height: 60px; margin: 15px 0; }
+    .horses-container-4 .horse-lane { min-height: 55px; margin: 12px 0; }
+    .horses-container-5 .horse-lane { min-height: 50px; margin: 10px 0; }
+    .horses-container-6 .horse-lane { min-height: 45px; margin: 8px 0; }
+    .horses-container-7 .horse-lane { min-height: 40px; margin: 6px 0; }
+    .horses-container-8 .horse-lane { min-height: 35px; margin: 5px 0; }
+    
+    .horse {
+        width: 60px;
+        height: 50px;
+    }
+    
+    .finish-line {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .horse-input {
+        flex-direction: column;
+        gap: 5px;
+        text-align: center;
+        min-width: 200px;
+    }
+    
+    .horse-input label {
+        white-space: normal;
+        font-size: 0.85em;
+    }
+    
+    .horse-input input {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
