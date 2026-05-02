@@ -2,6 +2,8 @@
 
 A fun, interactive browser-based horse racing game with custom SVG cartoon horse characters, physics-based movement, and a vibrant colour scheme.
 
+🌐 **Live site**: https://mingwei-personal.github.io/racing-horse-web-game
+
 ## Features
 
 - **1–8 Horses**: Pick how many horses compete in each race
