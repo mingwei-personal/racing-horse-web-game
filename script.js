@@ -121,9 +121,11 @@ class RacingHorseGame {
             finishTime: null,
             finishOrder: null,
             // All horses share the same base pace; personality comes from volatility alone
-            volatility: 0.2 + Math.random() * 0.585, // 0.2 – 0.785  (how erratic they are)
+            volatility: 0.2 + Math.random() * 0.878, // 0.2 – 1.078  (how erratic they are)
             velocity: 0,
             eventBoost: 0,                           // one-time kick, NOT accumulated into velocity
+            paceTarget: 1.0,                         // sustained speed multiplier, re-rolled every few seconds
+            paceTimer:  0,                           // countdown to next pace re-roll (seconds)
         }));
 
         this.showRacingPhase();
@@ -304,8 +306,10 @@ class RacingHorseGame {
         // Seed each horse with the shared starting velocity
         const BASE_V = 78; // units / second  →  ~15 s race on 1200-unit track
         this.horses.forEach(horse => {
-            horse.velocity = BASE_V;
-            horse.eventBoost = 0;
+            horse.velocity    = BASE_V;
+            horse.eventBoost  = 0;
+            horse.paceTarget  = 1.0;
+            horse.paceTimer   = Math.random() * 2; // stagger initial re-rolls so they don't all sync
         });
 
         document.getElementById('race-status').innerHTML = '<p>🏁 Race in progress... 🏁</p>';
@@ -339,10 +343,18 @@ class RacingHorseGame {
         this.horses.forEach((horse, index) => {
             if (horse.finished) return;
 
-            // ── 1. Smoothly-changing target velocity (same BASE_V for all) ────
-            // randomFactor swings ±volatility around 1.0 — wider multiplier = more visible variation
-            const randomFactor = 1.0 + (Math.random() - 0.5) * 3.0 * horse.volatility;
-            const targetV = BASE_V * Math.max(0.3, randomFactor);
+            // ── 1. Sustained pace target — re-rolled every 1.5–3 s so bursts/lulls are visible ──
+            horse.paceTimer -= dt;
+            if (horse.paceTimer <= 0) {
+                // Pick a new sustained pace multiplier biased around 1.0
+                horse.paceTarget = 1.0 + (Math.random() - 0.5) * 4.5 * horse.volatility;
+                horse.paceTarget = Math.max(0.25, horse.paceTarget); // floor — never fully stopped
+                horse.paceTimer  = 0.2 + Math.random() * 0.3;       // hold for 0.2–0.5 s
+            }
+
+            // Small frame-to-frame jitter on top of the sustained target (±10%)
+            const jitter = 1.0 + (Math.random() - 0.5) * 0.2;
+            const targetV = BASE_V * horse.paceTarget * jitter;
 
             // Lerp velocity toward target — no sudden jumps
             horse.velocity += (targetV - horse.velocity) * SMOOTH * dt;
