@@ -4,10 +4,13 @@ A fun, interactive browser-based horse racing game with custom SVG cartoon horse
 
 🌐 **Live site**: https://mingwei-personal.github.io/racing-horse-web-game
 
+🏠 **Internal edition** (fixed team roster): https://mingwei-personal.github.io/racing-horse-web-game/racing-horse-game-internal.html
+
 ## Features
 
-- **1–8 Horses**: Pick how many horses compete in each race
+- **1–12 Horses**: Pick how many horses compete in each race
 - **Custom Names**: Name every horse before the race starts
+- **Internal Edition**: Fixed roster of 11 team members (alphabetical order) — toggle each member in or out of the race before it starts
 - **Cartoon SVG Horse Heads**: Each horse has a unique hand-drawn SVG face with its own colour palette and facial expression (happy, determined, excited, nervous, cool, surprised, winking, or sleepy)
 - **Physics-Based Racing**: Horses move using a velocity model with smooth randomness — no teleporting, no fixed step sizes. Each horse has a random _volatility_ that determines how erratically it runs
 - **Dramatic Events**: Rare random bursts of speed or stumbles keep the race unpredictable
@@ -66,10 +69,11 @@ This is a static site — deploy anywhere that serves static files:
 
 ```
 racing-horse-web-game/
-├── index.html      # Page structure and phase containers
-├── styles.css      # All styling, animations, responsive layout
-├── script.js       # Game logic — RacingHorseGame class, SVG generation, physics loop
-└── README.md       # This file
+├── index.html                      # Public game — choose 1–12 horses, custom names
+├── racing-horse-game-internal.html # Internal edition — fixed team roster, toggle members
+├── styles.css                      # All styling, animations, responsive layout
+├── script.js                       # Game logic — RacingHorseGame class, SVG generation, physics loop
+└── README.md                       # This file
 ```
 
 ## Browser Compatibility
