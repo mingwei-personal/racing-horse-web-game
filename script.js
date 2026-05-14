@@ -8,8 +8,8 @@ class RacingHorseGame {
         this.lastTimestamp = null;
         // Internal race units — long enough that the race takes a satisfying 15–30 seconds
         this.raceDistance = 1200;
-        this.horseNames = ['Thunder', 'Lightning', 'Storm', 'Blaze', 'Spirit', 'Shadow', 'Golden', 'Rose'];
-        this.horseColors = ['Crimson', 'Navy', 'Orange', 'Purple', 'Teal', 'Pink', 'Green', 'Gold'];
+        this.horseNames = ['Thunder', 'Lightning', 'Storm', 'Blaze', 'Spirit', 'Shadow', 'Golden', 'Rose', 'Silver', 'Cocoa', 'Coral', 'Lime'];
+        this.horseColors = ['Crimson', 'Navy', 'Orange', 'Purple', 'Teal', 'Pink', 'Green', 'Gold', 'Silver', 'Brown', 'Coral', 'Lime'];
 
         this.initializeEventListeners();
     }
@@ -44,11 +44,13 @@ class RacingHorseGame {
     }
 
     setupHorseNaming() {
-        const horseCount = parseInt(document.getElementById('horse-count').value);
-        
-        // Validate horse count
-        if (horseCount < 1 || horseCount > 8) {
-            alert('Please enter a number between 1 and 8!');
+        const raw = document.getElementById('horse-count').value.trim();
+        const horseCount = Number(raw);
+
+        // Validate horse count: must be a non-empty integer in [1, 12]
+        if (raw === '' || !Number.isInteger(horseCount) || horseCount < 1 || horseCount > 12) {
+            alert('Please enter a whole number between 1 and 12!');
+            document.getElementById('horse-count').focus();
             return;
         }
 
@@ -69,8 +71,12 @@ class RacingHorseGame {
             horseInputsContainer.classList.add('horses-3-4');
         } else if (horseCount <= 6) {
             horseInputsContainer.classList.add('horses-5-6');
-        } else {
+        } else if (horseCount <= 8) {
             horseInputsContainer.classList.add('horses-7-8');
+        } else if (horseCount <= 10) {
+            horseInputsContainer.classList.add('horses-9-10');
+        } else {
+            horseInputsContainer.classList.add('horses-11-12');
         }
 
         for (let i = 0; i < horseCount; i++) {
@@ -151,6 +157,10 @@ class RacingHorseGame {
             { face:'#ec407a', dark:'#880e4f', muzzle:'#fce4ec', mane:'#ad1457', inner:'#fce4ec' }, // Pink
             { face:'#8bc34a', dark:'#33691e', muzzle:'#dcedc8', mane:'#558b2f', inner:'#f1f8e9' }, // Green
             { face:'#e8c84a', dark:'#7a5e00', muzzle:'#fffde7', mane:'#b8860b', inner:'#fffde7' }, // Gold
+            { face:'#90a4ae', dark:'#263238', muzzle:'#eceff1', mane:'#546e7a', inner:'#f5f5f5' }, // Silver
+            { face:'#a1887f', dark:'#3e2723', muzzle:'#efebe9', mane:'#6d4c41', inner:'#fbe9e7' }, // Brown
+            { face:'#ff7043', dark:'#bf360c', muzzle:'#fbe9e7', mane:'#e64a19', inner:'#fff3e0' }, // Coral
+            { face:'#c0ca33', dark:'#827717', muzzle:'#f9fbe7', mane:'#9e9d24', inner:'#f9fbe7' }, // Lime
         ];
 
         // 8 distinct facial expressions (brows, eyes, mouth SVG fragments)

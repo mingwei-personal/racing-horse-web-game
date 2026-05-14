@@ -507,6 +507,16 @@ button:active {
     margin: 0 auto 30px auto;
 }
 
+#horse-inputs.horses-9-10 {
+    max-width: 1150px;
+    margin: 0 auto 30px auto;
+}
+
+#horse-inputs.horses-11-12 {
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .horse-input {

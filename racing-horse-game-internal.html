@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing Horse Game — Internal</title>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: linear-gradient(160deg, #2364aa 0%, #3da5d9 45%, #73bfb8 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(35, 100, 170, 0.35), 0 4px 16px rgba(0,0,0,0.12);
+    overflow: hidden;
+    border: 2px solid rgba(61, 165, 217, 0.5);
+}
+
+header {
+    background: #2364aa;
+    color: #ffffff;
+    text-align: center;
+    padding: 32px 30px;
+    border-bottom: 3px solid #fec601;
+}
+
+header h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    font-family: Georgia, 'Palatino Linotype', serif;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+header .subtitle {
+    margin-top: 8px;
+    font-size: 1em;
+    letter-spacing: 2px;
+    opacity: 0.85;
+    font-style: italic;
+}
+
+.phase {
+    padding: 30px;
+}
+
+/* Pre-Race Phase */
+.setup-section {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.setup-section h2 {
+    color: #2364aa;
+    margin-bottom: 24px;
+    font-size: 2em;
+    font-family: Georgia, serif;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Horse roster grid */
+.horse-roster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 0 0 16px;
+}
+
+.roster-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #eef8f7;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 2px solid #73bfb8;
+    width: 105px;
+    flex: 0 0 105px;
+    cursor: pointer;
+    position: relative;
+    transition: opacity 0.2s, border-color 0.2s, background 0.2s, transform 0.12s;
+    user-select: none;
+}
+
+.roster-card:hover {
+    transform: translateY(-2px);
+}
+
+.roster-card.enabled {
+    background: #eef8f7;
+    border-color: #2364aa;
+}
+
+.roster-card.disabled {
+    background: #f0f0f0;
+    border-color: #cccccc;
+    opacity: 0.45;
+}
+
+.roster-card.disabled .roster-name {
+    color: #999;
+    text-decoration: line-through;
+}
+
+.roster-card.disabled .roster-color {
+    color: #bbb;
+}
+
+/* Tick / cross badge */
+.roster-toggle-badge {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.75em;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.roster-card.enabled  .roster-toggle-badge { color: #27ae60; }
+.roster-card.disabled .roster-toggle-badge { color: #cc0000; }
+
+/* Selection counter */
+.selection-count {
+    font-family: Georgia, serif;
+    font-size: 0.95em;
+    color: #2364aa;
+    margin-bottom: 24px;
+    font-style: italic;
+}
+
+.selection-count .count-num {
+    font-weight: bold;
+    font-style: normal;
+}
+
+.selection-count.warn {
+    color: #cc0000;
+}
+
+.roster-name {
+    font-weight: bold;
+    font-family: Georgia, serif;
+    color: #2364aa;
+    font-size: 0.95em;
+}
+
+.roster-color {
+    font-size: 0.78em;
+    color: #3da5d9;
+    font-style: italic;
+    font-family: Georgia, serif;
+}
+
+button {
+    background: #ea7317;
+    color: #ffffff;
+    border: none;
+    padding: 12px 28px;
+    font-size: 1.05em;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    font-weight: bold;
+    font-family: Georgia, serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 3px 14px rgba(234, 115, 23, 0.45);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    filter: brightness(1.08);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Racing Phase */
+.race-controls {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.race-track {
+    position: relative;
+    background: linear-gradient(to right,
+        #27ae60 0%,
+        #2ecc71 48%,
+        #27ae60 94%,
+        #fec601 94%,
+        #fec601 97%,
+        #ea7317 100%);
+    border: 3px solid #1e8449;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 400px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 14px rgba(0,0,0,0.15), 0 4px 16px rgba(39, 174, 96, 0.3);
+}
+
+/* Dynamic race track heights */
+.race-track.track-1-horses  { min-height: 200px; }
+.race-track.track-2-horses  { min-height: 280px; }
+.race-track.track-3-horses  { min-height: 320px; }
+.race-track.track-4-horses  { min-height: 360px; }
+.race-track.track-5-horses  { min-height: 400px; }
+.race-track.track-6-horses  { min-height: 420px; }
+.race-track.track-7-horses  { min-height: 440px; }
+.race-track.track-8-horses  { min-height: 460px; }
+.race-track.track-9-horses  { min-height: 470px; }
+.race-track.track-10-horses { min-height: 480px; }
+.race-track.track-11-horses { min-height: 490px; }
+.race-track.track-12-horses { min-height: 500px; }
+
+.finish-line {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3em;
+    z-index: 10;
+}
+
+#horses-container {
+    position: relative;
+    height: 100%;
+}
+
+.horse-lane {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    position: relative;
+    min-height: 50px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 25px;
+    padding: 5px;
+    border: 1px solid rgba(255,255,255,0.55);
+}
+
+/* Dynamic lane sizing */
+.horses-container-1  .horse-lane { min-height: 120px; margin: 30px 0; }
+.horses-container-2  .horse-lane { min-height: 100px; margin: 25px 0; }
+.horses-container-3  .horse-lane { min-height: 80px;  margin: 20px 0; }
+.horses-container-4  .horse-lane { min-height: 70px;  margin: 18px 0; }
+.horses-container-5  .horse-lane { min-height: 60px;  margin: 15px 0; }
+.horses-container-6  .horse-lane { min-height: 55px;  margin: 12px 0; }
+.horses-container-7  .horse-lane { min-height: 50px;  margin: 10px 0; }
+.horses-container-8  .horse-lane { min-height: 45px;  margin: 8px 0; }
+.horses-container-9  .horse-lane { min-height: 40px;  margin: 7px 0; }
+.horses-container-10 .horse-lane { min-height: 38px;  margin: 6px 0; }
+.horses-container-11 .horse-lane { min-height: 36px;  margin: 5px 0; }
+.horses-container-12 .horse-lane { min-height: 34px;  margin: 4px 0; }
+
+.horse {
+    position: absolute;
+    left: 0;
+    width: 54px;
+    height: 66px;
+    transition: none;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.horse-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(2px 3px 5px rgba(0,0,0,0.4));
+    user-select: none;
+}
+
+.horse-running {
+    animation: gallop 0.38s infinite;
+    transform-origin: 50% 85%;
+}
+
+@keyframes gallop {
+    0%, 100% { transform: translateY(0px)  rotate(0deg);  }
+    20%       { transform: translateY(-5px) rotate(-7deg); }
+    40%       { transform: translateY(-2px) rotate(1deg);  }
+    60%       { transform: translateY(-4px) rotate(6deg);  }
+    80%       { transform: translateY(-1px) rotate(-1deg); }
+}
+
+.horse.winner .horse-icon {
+    animation: winnerPulse 0.7s infinite;
+}
+
+@keyframes winnerPulse {
+    0%, 100% { transform: scale(1);    filter: drop-shadow(2px 3px 5px rgba(0,0,0,0.3)); }
+    50%       { transform: scale(1.18); filter: drop-shadow(0 0 14px rgba(254,198,1,0.9)) drop-shadow(0 0 22px rgba(234,115,23,0.7)) drop-shadow(2px 3px 5px rgba(0,0,0,0.3)); }
+}
+
+.horse-name {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    color: #2364aa;
+    background: rgba(254, 198, 1, 0.92);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-family: Georgia, serif;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(234, 115, 23, 0.4);
+}
+
+.finish-badge {
+    position: absolute;
+    left: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #2364aa;
+    color: #ffffff;
+    font-size: 0.65em;
+    font-weight: bold;
+    padding: 2px 7px;
+    border-radius: 8px;
+    white-space: nowrap;
+    font-family: Georgia, serif;
+    pointer-events: none;
+    border: 1px solid rgba(254, 198, 1, 0.6);
+}
+
+#race-status {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #2364aa;
+    font-family: Georgia, serif;
+    letter-spacing: 0.5px;
+}
+
+/* Results Phase */
+.results-container {
+    text-align: center;
+}
+
+.results-container h2 {
+    color: #2364aa;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-family: Georgia, serif;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#winner-announcement {
+    background: #2364aa;
+    color: #ffffff;
+    padding: 24px 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    font-size: 1.5em;
+    font-weight: bold;
+    font-family: Georgia, serif;
+    letter-spacing: 1px;
+    border: 3px solid #fec601;
+    box-shadow: 0 6px 24px rgba(35, 100, 170, 0.4);
+}
+
+#final-positions {
+    background: #eef8f7;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 1px solid #73bfb8;
+}
+
+.position-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    margin: 5px 0;
+    background: #ffffff;
+    border-radius: 6px;
+    font-weight: bold;
+    font-family: Georgia, serif;
+    color: #2364aa;
+    border: 1px solid rgba(115, 191, 184, 0.4);
+}
+
+.result-horse-name {
+    font-size: 1.05em;
+}
+
+.result-horse-info {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+/* 1st — yellow */
+.position-item:nth-child(2) {
+    background: #fec601;
+    color: #2364aa;
+    border-color: #ea7317;
+}
+
+/* 2nd — sky blue */
+.position-item:nth-child(3) {
+    background: #3da5d9;
+    color: #ffffff;
+    border-color: #2364aa;
+}
+
+/* 3rd — orange */
+.position-item:nth-child(4) {
+    background: #ea7317;
+    color: #ffffff;
+    border-color: #c0550e;
+}
+
+/* Utility */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 10px;
+    }
+
+    header h1 {
+        font-size: 1.8em;
+        letter-spacing: 2px;
+    }
+
+    .roster-card {
+        min-width: 75px;
+        max-width: 100px;
+        padding: 10px 10px;
+    }
+
+    .race-track {
+        min-height: 300px;
+    }
+
+    .horses-container-9  .horse-lane { min-height: 32px; margin: 3px 0; }
+    .horses-container-10 .horse-lane { min-height: 30px; margin: 3px 0; }
+    .horses-container-11 .horse-lane { min-height: 28px; margin: 3px 0; }
+    .horses-container-12 .horse-lane { min-height: 26px; margin: 2px 0; }
+
+    .horse {
+        width: 44px;
+        height: 54px;
+    }
+
+    .horse-icon svg {
+        width: 42px;
+        height: 50px;
+    }
+
+    .finish-line {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .roster-card {
+        min-width: 65px;
+        max-width: 85px;
+        padding: 8px 8px;
+    }
+
+    .roster-name {
+        font-size: 0.82em;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐎 Racing Horse Game 🐎</h1>
+            <p class="subtitle">Internal Edition</p>
+        </header>
+
+        <!-- Pre-Race Phase -->
+        <div id="pre-race-phase" class="phase">
+            <div class="setup-section">
+                <h2>Meet The Racers</h2>
+                <p class="selection-count" id="selection-count">Click a racer to toggle them in or out.</p>
+                <div id="horse-roster" class="horse-roster"></div>
+                <button id="start-race">Start Race!</button>
+            </div>
+        </div>
+
+        <!-- Racing Phase -->
+        <div id="racing-phase" class="phase" style="display: none;">
+            <div class="race-controls">
+                <button id="restart-game">New Race</button>
+            </div>
+            <div class="race-track">
+                <div class="finish-line">🏁</div>
+                <div id="horses-container"></div>
+            </div>
+            <div id="race-status">
+                <p>Race in progress...</p>
+            </div>
+        </div>
+
+        <!-- Results Phase -->
+        <div id="results-phase" class="phase" style="display: none;">
+            <div class="results-container">
+                <h2>🏆 Race Results 🏆</h2>
+                <div id="winner-announcement"></div>
+                <div id="final-positions"></div>
+                <button id="play-again">Race Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Fixed team members in alphabetical order
+const TEAM_NAMES  = ['Alibek', 'Francisco', 'Jeff', 'Michael', 'Mikhail', 'Mingwei', 'Qiang', 'Talia', 'Trent', 'Viktor', 'Xiwen'];
+const TEAM_COLORS = ['Crimson', 'Navy', 'Orange', 'Purple', 'Teal', 'Pink', 'Green', 'Gold', 'Silver', 'Brown', 'Coral'];
+
+class RacingHorseGameInternal {
+    constructor() {
+        this.horses = [];
+        this.raceInProgress = false;
+        this.animationFrameId = null;
+        this.raceFinished = false;
+        this.finishCount = 0;
+        this.lastTimestamp = null;
+        this.raceDistance = 1200;
+        // All team members enabled by default
+        this.enabled = TEAM_NAMES.map(() => true);
+
+        this.initializeEventListeners();
+        this.buildRoster();
+    }
+
+    initializeEventListeners() {
+        document.getElementById('start-race').addEventListener('click', () => this.startRace());
+        document.getElementById('restart-game').addEventListener('click', () => this.restartGame());
+        document.getElementById('play-again').addEventListener('click', () => this.restartGame());
+    }
+
+    buildRoster() {
+        const container = document.getElementById('horse-roster');
+        container.innerHTML = '';
+        TEAM_NAMES.forEach((name, i) => {
+            const card = document.createElement('div');
+            card.classList.add('roster-card', 'enabled');
+            card.dataset.index = i;
+            card.innerHTML = `
+                <span class="roster-toggle-badge">✔</span>
+                ${this.getHorseSVG(i, 40, 48)}
+                <span class="roster-name">${name}</span>
+                <span class="roster-color">${TEAM_COLORS[i]}</span>
+            `;
+            card.addEventListener('click', () => this.toggleMember(i));
+            container.appendChild(card);
+        });
+        this.updateSelectionCount();
+    }
+
+    toggleMember(index) {
+        this.enabled[index] = !this.enabled[index];
+        const card = document.querySelector(`.roster-card[data-index="${index}"]`);
+        const badge = card.querySelector('.roster-toggle-badge');
+        if (this.enabled[index]) {
+            card.classList.replace('disabled', 'enabled');
+            badge.textContent = '✔';
+        } else {
+            card.classList.replace('enabled', 'disabled');
+            badge.textContent = '✖';
+        }
+        this.updateSelectionCount();
+    }
+
+    updateSelectionCount() {
+        const n = this.enabled.filter(Boolean).length;
+        const el = document.getElementById('selection-count');
+        if (n < 2) {
+            el.className = 'selection-count warn';
+            el.innerHTML = `<span class="count-num">${n}</span> racer${n === 1 ? '' : 's'} selected — need at least 2 to race.`;
+        } else {
+            el.className = 'selection-count';
+            el.innerHTML = `<span class="count-num">${n}</span> of ${TEAM_NAMES.length} racers in the game. Click to toggle.`;
+        }
+    }
+
+    startRace() {
+        const activeIndices = TEAM_NAMES.map((_, i) => i).filter(i => this.enabled[i]);
+        if (activeIndices.length < 2) {
+            alert('Please enable at least 2 racers!');
+            return;
+        }
+        this.horses = activeIndices.map((teamIndex) => ({
+            name: TEAM_NAMES[teamIndex],
+            position: 0,
+            colorIndex: teamIndex,
+            color: TEAM_COLORS[teamIndex],
+            finished: false,
+            finishTime: null,
+            finishOrder: null,
+            volatility: 0.2 + Math.random() * 0.878,
+            velocity: 0,
+            eventBoost: 0,
+            paceTarget: 1.0,
+            paceTimer: 0,
+        }));
+
+        this.showRacingPhase();
+        this.createRaceTrack();
+        this.beginRace();
+    }
+
+    showRacingPhase() {
+        document.getElementById('pre-race-phase').style.display = 'none';
+        const racingPhase = document.getElementById('racing-phase');
+        racingPhase.style.display = 'block';
+        racingPhase.classList.add('fade-in');
+    }
+
+    getHorseSVG(colorIndex, width = 52, height = 62) {
+        const palettes = [
+            { face:'#e74c3c', dark:'#7b1a0e', muzzle:'#f5b7b1', mane:'#c0392b', inner:'#fadbd8' }, // Crimson
+            { face:'#5c6bc0', dark:'#1a237e', muzzle:'#c5cae9', mane:'#283593', inner:'#e8eaf6' }, // Navy
+            { face:'#fb8c00', dark:'#7a3300', muzzle:'#ffe0b2', mane:'#bf360c', inner:'#fff3e0' }, // Orange
+            { face:'#ab47bc', dark:'#4a148c', muzzle:'#e1bee7', mane:'#6a1b9a', inner:'#f3e5f5' }, // Purple
+            { face:'#26c6da', dark:'#006064', muzzle:'#b2ebf2', mane:'#00838f', inner:'#e0f7fa' }, // Teal
+            { face:'#ec407a', dark:'#880e4f', muzzle:'#fce4ec', mane:'#ad1457', inner:'#fce4ec' }, // Pink
+            { face:'#8bc34a', dark:'#33691e', muzzle:'#dcedc8', mane:'#558b2f', inner:'#f1f8e9' }, // Green
+            { face:'#e8c84a', dark:'#7a5e00', muzzle:'#fffde7', mane:'#b8860b', inner:'#fffde7' }, // Gold
+            { face:'#90a4ae', dark:'#263238', muzzle:'#eceff1', mane:'#546e7a', inner:'#f5f5f5' }, // Silver
+            { face:'#a1887f', dark:'#3e2723', muzzle:'#efebe9', mane:'#6d4c41', inner:'#fbe9e7' }, // Brown
+            { face:'#ff7043', dark:'#bf360c', muzzle:'#fbe9e7', mane:'#e64a19', inner:'#fff3e0' }, // Coral
+        ];
+
+        const expressions = [
+            // 0 — Happy
+            { brows: '',
+              eyes:  `<circle cx="19" cy="32" r="4.5" fill="white"/>
+                      <circle cx="37" cy="32" r="4.5" fill="white"/>
+                      <circle cx="19.8" cy="32.5" r="2.8" fill="{dark}"/>
+                      <circle cx="37.8" cy="32.5" r="2.8" fill="{dark}"/>
+                      <circle cx="20.8" cy="31.4" r="1.1" fill="white"/>
+                      <circle cx="38.8" cy="31.4" r="1.1" fill="white"/>`,
+              mouth: `<path d="M19,44 Q28,52 38,44" stroke="{dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>` },
+
+            // 1 — Determined
+            { brows: `<line x1="13" y1="26" x2="24" y2="28" stroke="{dark}" stroke-width="2.2" stroke-linecap="round"/>
+                      <line x1="32" y1="28" x2="43" y2="26" stroke="{dark}" stroke-width="2.2" stroke-linecap="round"/>`,
+              eyes:  `<ellipse cx="19" cy="32" rx="4.5" ry="3" fill="white"/>
+                      <ellipse cx="37" cy="32" rx="4.5" ry="3" fill="white"/>
+                      <circle cx="19.5" cy="32" r="2" fill="{dark}"/>
+                      <circle cx="37.5" cy="32" r="2" fill="{dark}"/>`,
+              mouth: `<path d="M21,46 Q28,44 37,46" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>` },
+
+            // 2 — Excited
+            { brows: `<path d="M13,25 Q19,20 25,25" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>
+                      <path d="M31,25 Q37,20 43,25" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+              eyes:  `<circle cx="19" cy="32" r="5.5" fill="white"/>
+                      <circle cx="37" cy="32" r="5.5" fill="white"/>
+                      <circle cx="19.5" cy="32.5" r="3.5" fill="{dark}"/>
+                      <circle cx="37.5" cy="32.5" r="3.5" fill="{dark}"/>
+                      <circle cx="20.8" cy="31.2" r="1.4" fill="white"/>
+                      <circle cx="38.8" cy="31.2" r="1.4" fill="white"/>`,
+              mouth: `<path d="M17,45 Q28,56 40,45" stroke="{dark}" stroke-width="2.5" fill="{muzzle}" stroke-linecap="round"/>` },
+
+            // 3 — Nervous
+            { brows: `<path d="M13,27 Q19,23 25,27" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>
+                      <path d="M31,27 Q37,23 43,27" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+              eyes:  `<circle cx="19" cy="33" r="4" fill="white"/>
+                      <circle cx="37" cy="33" r="4" fill="white"/>
+                      <circle cx="19" cy="34" r="2.5" fill="{dark}"/>
+                      <circle cx="37" cy="34" r="2.5" fill="{dark}"/>
+                      <path d="M44,18 Q47,13 50,18 Q47,23 44,18" fill="#aaddff"/>`,
+              mouth: `<path d="M19,46 Q23,50 28,46 Q33,42 37,46" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>` },
+
+            // 4 — Cool
+            { brows: '',
+              eyes:  `<ellipse cx="19" cy="32" rx="4.5" ry="3.5" fill="white"/>
+                      <ellipse cx="37" cy="32" rx="4.5" ry="3.5" fill="white"/>
+                      <ellipse cx="19.5" cy="32.5" rx="2.8" ry="2.2" fill="{dark}"/>
+                      <ellipse cx="37.5" cy="32.5" rx="2.8" ry="2.2" fill="{dark}"/>
+                      <rect x="14" y="29" width="10" height="4" rx="2" fill="{face}" opacity="0.75"/>
+                      <rect x="32" y="29" width="10" height="4" rx="2" fill="{face}" opacity="0.75"/>`,
+              mouth: `<path d="M23,46 Q31,50 37,46" stroke="{dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>` },
+
+            // 5 — Surprised
+            { brows: `<path d="M13,24 Q19,19 25,24" stroke="{dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                      <path d="M31,24 Q37,19 43,24" stroke="{dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+              eyes:  `<circle cx="19" cy="33" r="6" fill="white"/>
+                      <circle cx="37" cy="33" r="6" fill="white"/>
+                      <circle cx="19" cy="33" r="4" fill="{dark}"/>
+                      <circle cx="37" cy="33" r="4" fill="{dark}"/>
+                      <circle cx="20.5" cy="31.5" r="1.6" fill="white"/>
+                      <circle cx="38.5" cy="31.5" r="1.6" fill="white"/>`,
+              mouth: `<ellipse cx="28" cy="48" rx="4.5" ry="4" fill="{dark}" opacity="0.55"/>` },
+
+            // 6 — Winking
+            { brows: '',
+              eyes:  `<circle cx="19" cy="32" r="4.5" fill="white"/>
+                      <circle cx="19.8" cy="32.5" r="2.8" fill="{dark}"/>
+                      <circle cx="20.8" cy="31.4" r="1.1" fill="white"/>
+                      <path d="M32,32 Q37,28 43,32" stroke="{dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                      <path d="M32,32 Q37,36 43,32" stroke="{dark}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+              mouth: `<path d="M20,46 Q28,53 38,44" stroke="{dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>` },
+
+            // 7 — Sleepy
+            { brows: '',
+              eyes:  `<circle cx="19" cy="33" r="4.5" fill="white"/>
+                      <circle cx="37" cy="33" r="4.5" fill="white"/>
+                      <circle cx="19" cy="33.5" r="2.8" fill="{dark}"/>
+                      <circle cx="37" cy="33.5" r="2.8" fill="{dark}"/>
+                      <rect x="14" y="29" width="10" height="5.5" rx="2" fill="{face}" opacity="0.85"/>
+                      <rect x="32" y="29" width="10" height="5.5" rx="2" fill="{face}" opacity="0.85"/>
+                      <path d="M14,31 Q19,35 24,31" stroke="{dark}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                      <path d="M32,31 Q37,35 42,31" stroke="{dark}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+              mouth: `<ellipse cx="28" cy="47" rx="3.5" ry="3" fill="{dark}" opacity="0.4"/>` },
+
+            // 8 — Smug
+            { brows: `<path d="M13,27 Q19,24 25,27" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>
+                      <path d="M31,25 Q37,22 43,27" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+              eyes:  `<ellipse cx="19" cy="32" rx="4.5" ry="3.8" fill="white"/>
+                      <ellipse cx="37" cy="32" rx="4.5" ry="3.8" fill="white"/>
+                      <circle cx="20" cy="32.5" r="2.5" fill="{dark}"/>
+                      <circle cx="38" cy="32.5" r="2.5" fill="{dark}"/>
+                      <circle cx="21" cy="31.4" r="1" fill="white"/>
+                      <circle cx="39" cy="31.4" r="1" fill="white"/>`,
+              mouth: `<path d="M22,47 Q28,44 36,48" stroke="{dark}" stroke-width="2" fill="none" stroke-linecap="round"/>` },
+
+            // 9 — Focused
+            { brows: `<line x1="13" y1="27" x2="25" y2="26" stroke="{dark}" stroke-width="2" stroke-linecap="round"/>
+                      <line x1="31" y1="26" x2="43" y2="27" stroke="{dark}" stroke-width="2" stroke-linecap="round"/>`,
+              eyes:  `<circle cx="19" cy="32" r="4" fill="white"/>
+                      <circle cx="37" cy="32" r="4" fill="white"/>
+                      <circle cx="19.5" cy="32" r="2.8" fill="{dark}"/>
+                      <circle cx="37.5" cy="32" r="2.8" fill="{dark}"/>
+                      <circle cx="20.5" cy="31" r="1" fill="white"/>
+                      <circle cx="38.5" cy="31" r="1" fill="white"/>`,
+              mouth: `<line x1="20" y1="47" x2="37" y2="47" stroke="{dark}" stroke-width="2" stroke-linecap="round"/>` },
+
+            // 10 — Cheerful
+            { brows: `<path d="M13,26 Q19,22 25,26" stroke="{dark}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+                      <path d="M31,26 Q37,22 43,26" stroke="{dark}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+              eyes:  `<circle cx="19" cy="32" r="4.5" fill="white"/>
+                      <circle cx="37" cy="32" r="4.5" fill="white"/>
+                      <circle cx="19.5" cy="32.5" r="3" fill="{dark}"/>
+                      <circle cx="37.5" cy="32.5" r="3" fill="{dark}"/>
+                      <circle cx="20.8" cy="31.2" r="1.2" fill="white"/>
+                      <circle cx="38.8" cy="31.2" r="1.2" fill="white"/>`,
+              mouth: `<path d="M18,44 Q28,54 39,44" stroke="{dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                      <circle cx="17" cy="46" r="2" fill="{muzzle}" stroke="{dark}" stroke-width="0.8"/>
+                      <circle cx="40" cy="46" r="2" fill="{muzzle}" stroke="{dark}" stroke-width="0.8"/>` },
+        ];
+
+        const p = palettes[colorIndex % palettes.length];
+        const e = expressions[colorIndex % expressions.length];
+
+        const fill = (s) => s
+            .replace(/\{face\}/g,   p.face)
+            .replace(/\{dark\}/g,   p.dark)
+            .replace(/\{muzzle\}/g, p.muzzle)
+            .replace(/\{mane\}/g,   p.mane)
+            .replace(/\{inner\}/g,  p.inner);
+
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 66" width="${width}" height="${height}" style="vertical-align:middle;flex-shrink:0">
+  <polygon points="7,24 14,4 23,21" fill="${p.face}" stroke="${p.dark}" stroke-width="1.5" stroke-linejoin="round"/>
+  <polygon points="10,22 14,8 21,20" fill="${p.inner}"/>
+  <polygon points="33,21 42,4 49,24" fill="${p.face}" stroke="${p.dark}" stroke-width="1.5" stroke-linejoin="round"/>
+  <polygon points="35,20 42,8 46,22" fill="${p.inner}"/>
+  <ellipse cx="28" cy="40" rx="22" ry="24" fill="${p.face}" stroke="${p.dark}" stroke-width="1.5"/>
+  <path d="M17,19 Q28,10 39,19 Q34,27 28,24 Q22,27 17,19" fill="${p.mane}" stroke="${p.dark}" stroke-width="1" stroke-linejoin="round"/>
+  <ellipse cx="28" cy="55" rx="13" ry="9" fill="${p.muzzle}" stroke="${p.dark}" stroke-width="1"/>
+  <ellipse cx="23" cy="57" rx="2.5" ry="2" fill="${p.dark}" opacity="0.3"/>
+  <ellipse cx="33" cy="57" rx="2.5" ry="2" fill="${p.dark}" opacity="0.3"/>
+  ${fill(e.brows)}
+  ${fill(e.eyes)}
+  ${fill(e.mouth)}
+</svg>`;
+    }
+
+    createRaceTrack() {
+        const horsesContainer = document.getElementById('horses-container');
+        horsesContainer.innerHTML = '';
+        horsesContainer.className = `horses-container-${this.horses.length}`;
+
+        const raceTrack = document.querySelector('.race-track');
+        raceTrack.className = `race-track track-${this.horses.length}-horses`;
+
+        this.horses.forEach((horse, index) => {
+            const horseLane = document.createElement('div');
+            horseLane.classList.add('horse-lane');
+            horseLane.innerHTML = `
+                <div class="horse-name">${horse.name}</div>
+                <div class="horse horse-running" id="horse-${index}">
+                    <div class="horse-icon">${this.getHorseSVG(horse.colorIndex)}</div>
+                </div>
+            `;
+            horsesContainer.appendChild(horseLane);
+        });
+    }
+
+    beginRace() {
+        this.raceInProgress = true;
+        this.raceFinished = false;
+        this.finishCount = 0;
+        this.lastTimestamp = null;
+
+        const BASE_V = 78;
+        this.horses.forEach(horse => {
+            horse.velocity   = BASE_V;
+            horse.eventBoost = 0;
+            horse.paceTarget = 1.0;
+            horse.paceTimer  = Math.random() * 2;
+        });
+
+        document.getElementById('race-status').innerHTML = '<p>🏁 Race in progress... 🏁</p>';
+
+        const loop = (timestamp) => {
+            if (!this.raceInProgress) return;
+            if (this.lastTimestamp === null) this.lastTimestamp = timestamp;
+            const dt = Math.min((timestamp - this.lastTimestamp) / 1000, 0.05);
+            this.lastTimestamp = timestamp;
+            this.updateRace(dt);
+            if (this.raceInProgress) {
+                this.animationFrameId = requestAnimationFrame(loop);
+            }
+        };
+
+        this.animationFrameId = requestAnimationFrame(loop);
+    }
+
+    updateRace(dt) {
+        const BASE_V      = 78;
+        const SMOOTH      = 8.0;
+        const MIN_V       = 15;
+        const EVENT_DECAY = 3.0;
+        const MAX_STEP    = 78;
+
+        this.horses.forEach((horse, index) => {
+            if (horse.finished) return;
+
+            horse.paceTimer -= dt;
+            if (horse.paceTimer <= 0) {
+                horse.paceTarget = 1.0 + (Math.random() - 0.5) * 4.5 * horse.volatility;
+                horse.paceTarget = Math.max(0.25, horse.paceTarget);
+                horse.paceTimer  = 0.2 + Math.random() * 0.3;
+            }
+
+            const jitter  = 1.0 + (Math.random() - 0.5) * 0.2;
+            const targetV = BASE_V * horse.paceTarget * jitter;
+            horse.velocity += (targetV - horse.velocity) * SMOOTH * dt;
+            horse.velocity = Math.max(MIN_V, horse.velocity);
+
+            if (Math.random() < 0.003) {
+                horse.eventBoost = (Math.random() < 0.55)
+                    ?  BASE_V * 0.5
+                    : -BASE_V * 0.3;
+            }
+
+            horse.eventBoost *= (1 - EVENT_DECAY * dt);
+            if (Math.abs(horse.eventBoost) < 0.5) horse.eventBoost = 0;
+
+            const rawDelta = (horse.velocity + horse.eventBoost) * dt;
+            const delta = Math.min(Math.max(rawDelta, -8), MAX_STEP);
+            horse.position = Math.max(0, horse.position + delta);
+
+            const horseElement = document.getElementById(`horse-${index}`);
+            const visualPct = Math.min((horse.position / this.raceDistance) * 88, 88);
+            horseElement.style.left = `${visualPct}%`;
+
+            if (horse.position >= this.raceDistance) {
+                horse.finished = true;
+                horse.finishTime = performance.now();
+                this.finishCount++;
+                horse.finishOrder = this.finishCount;
+
+                horseElement.classList.remove('horse-running');
+                horseElement.classList.add('winner');
+                this.attachFinishBadge(horse, index);
+            }
+        });
+
+        this.updateLiveStatus();
+
+        if (this.horses.every(h => h.finished)) {
+            this.raceInProgress = false;
+            cancelAnimationFrame(this.animationFrameId);
+            setTimeout(() => this.endRace(), 2500);
+        }
+    }
+
+    attachFinishBadge(horse, index) {
+        const ordinals = ['1st 🥇', '2nd 🥈', '3rd 🥉', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
+        const label = ordinals[horse.finishOrder - 1] || `${horse.finishOrder}th`;
+
+        const badge = document.createElement('div');
+        badge.className = 'finish-badge';
+        badge.textContent = label;
+        document.getElementById(`horse-${index}`).appendChild(badge);
+    }
+
+    updateLiveStatus() {
+        const finished = this.horses
+            .filter(h => h.finished)
+            .sort((a, b) => a.finishOrder - b.finishOrder);
+
+        let html = '<p>🏁 Race in progress';
+        if (finished.length > 0) {
+            const medals = ['🥇', '🥈', '🥉'];
+            const parts = finished.map((h, i) => `${medals[i] || (i + 1) + '.'} ${h.name}`);
+            html += ' &mdash; ' + parts.join(' &nbsp;|&nbsp; ');
+        }
+        html += '</p>';
+        document.getElementById('race-status').innerHTML = html;
+    }
+
+    endRace() {
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+
+        const sortedHorses = [...this.horses].sort((a, b) => {
+            if (a.finishOrder && b.finishOrder) return a.finishOrder - b.finishOrder;
+            if (a.finishOrder) return -1;
+            if (b.finishOrder) return 1;
+            return b.position - a.position;
+        });
+
+        this.showResults(sortedHorses);
+    }
+
+    showResults(sortedHorses) {
+        document.getElementById('racing-phase').style.display = 'none';
+
+        const resultsPhase = document.getElementById('results-phase');
+        resultsPhase.style.display = 'block';
+        resultsPhase.classList.add('fade-in');
+
+        const winner = sortedHorses[0];
+        document.getElementById('winner-announcement').innerHTML = `
+            <div>🏆 <strong>${winner.name}</strong> (${winner.color} Horse) WINS! 🏆</div>
+            <div style="font-size: 0.8em; margin-top: 10px;">🎉 Congratulations! 🎉</div>
+        `;
+
+        const finalPositions = document.getElementById('final-positions');
+        finalPositions.innerHTML = '<h3 style="margin-bottom: 15px;">Final Standings</h3>';
+
+        sortedHorses.forEach((horse, index) => {
+            const positionItem = document.createElement('div');
+            positionItem.classList.add('position-item');
+
+            let medal = '';
+            if (index === 0)      medal = '🥇';
+            else if (index === 1) medal = '🥈';
+            else if (index === 2) medal = '🥉';
+            else                  medal = `${index + 1}`;
+
+            positionItem.innerHTML = `
+                <span class="result-horse-name">${medal} ${horse.name}</span>
+                <span class="result-horse-info">${this.getHorseSVG(horse.colorIndex, 32, 38)} <span>${horse.color} — #${horse.finishOrder}</span></span>
+            `;
+            finalPositions.appendChild(positionItem);
+        });
+    }
+
+    restartGame() {
+        this.raceInProgress = false;
+        this.raceFinished = false;
+        this.finishCount = 0;
+        this.horses = [];
+
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+
+        document.getElementById('pre-race-phase').style.display = 'block';
+        document.getElementById('racing-phase').style.display = 'none';
+        document.getElementById('results-phase').style.display = 'none';
+        this.updateSelectionCount();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    new RacingHorseGameInternal();
+});
+    </script>
+</body>
+</html>
