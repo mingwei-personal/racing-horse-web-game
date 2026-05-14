@@ -130,10 +130,99 @@ header .subtitle {
     font-size: 0.75em;
     font-weight: bold;
     line-height: 1;
+    z-index: 2;
 }
 
 .roster-card.enabled  .roster-toggle-badge { color: #27ae60; }
 .roster-card.disabled .roster-toggle-badge { color: #cc0000; }
+
+/* Avatar upload */
+.avatar-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #73bfb8;
+    display: block;
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background: #2364aa;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    transition: background 0.15s;
+    z-index: 3;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: normal;
+    font-family: sans-serif;
+}
+
+.avatar-upload-btn:hover {
+    background: #ea7317;
+    transform: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    filter: none;
+}
+
+.avatar-clear-btn {
+    position: absolute;
+    bottom: -4px;
+    left: -4px;
+    background: #cc0000;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 13px;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    transition: background 0.15s;
+    z-index: 3;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: normal;
+    font-family: sans-serif;
+}
+
+.avatar-clear-btn:hover {
+    background: #990000;
+    transform: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    filter: none;
+}
+
+/* Race track custom avatar */
+.horse-icon .avatar-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.7);
+}
 
 /* Selection counter */
 .selection-count {
@@ -521,6 +610,9 @@ button:active {
             </div>
         </div>
 
+        <!-- Hidden file input for avatar uploads -->
+        <input type="file" id="avatar-file-input" accept="image/*" style="display:none">
+
         <!-- Racing Phase -->
         <div id="racing-phase" class="phase" style="display: none;">
             <div class="race-controls">
@@ -571,6 +663,71 @@ class RacingHorseGameInternal {
         document.getElementById('start-race').addEventListener('click', () => this.startRace());
         document.getElementById('restart-game').addEventListener('click', () => this.restartGame());
         document.getElementById('play-again').addEventListener('click', () => this.restartGame());
+
+        // Single shared file input — handler swapped per member
+        const fileInput = document.getElementById('avatar-file-input');
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const dataURL = ev.target.result;
+                const idx = parseInt(fileInput.dataset.targetIndex);
+                localStorage.setItem(`rh-avatar-${TEAM_NAMES[idx]}`, dataURL);
+                this.refreshAvatarOnCard(idx);
+            };
+            reader.readAsDataURL(file);
+            // Reset so the same file can be re-uploaded if needed
+            fileInput.value = '';
+        });
+    }
+
+    // Returns an <img> if a custom avatar is stored, otherwise the horse SVG string
+    getAvatarHTML(colorIndex, width = 52, height = 62) {
+        const stored = localStorage.getItem(`rh-avatar-${TEAM_NAMES[colorIndex]}`);
+        if (stored) {
+            return `<img class="avatar-img" src="${stored}" width="${width}" height="${height}" alt="${TEAM_NAMES[colorIndex]}" style="width:${width}px;height:${height}px">`;
+        }
+        return this.getHorseSVG(colorIndex, width, height);
+    }
+
+    refreshAvatarOnCard(index) {
+        const card = document.querySelector(`.roster-card[data-index="${index}"]`);
+        if (!card) return;
+        const wrapper = card.querySelector('.avatar-wrapper');
+        wrapper.innerHTML = this._avatarWrapperContent(index, true);
+        this._bindAvatarButtons(card, index);
+    }
+
+    // Inner HTML for the avatar wrapper (SVG or img + upload/clear buttons)
+    _avatarWrapperContent(index, forRoster = true) {
+        const size = forRoster ? 48 : 48;
+        const stored = localStorage.getItem(`rh-avatar-${TEAM_NAMES[index]}`);
+        const icon = stored
+            ? `<img class="avatar-img" src="${stored}" width="${size}" height="${size}" alt="${TEAM_NAMES[index]}" style="width:${size}px;height:${size}px">`
+            : this.getHorseSVG(index, 40, 48);
+        const clearBtn = stored ? `<button class="avatar-clear-btn" title="Remove photo">×</button>` : '';
+        return `${icon}<button class="avatar-upload-btn" title="Upload photo">📷</button>${clearBtn}`;
+    }
+
+    _bindAvatarButtons(card, index) {
+        const uploadBtn = card.querySelector('.avatar-upload-btn');
+        const clearBtn  = card.querySelector('.avatar-clear-btn');
+        const fileInput = document.getElementById('avatar-file-input');
+
+        uploadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.dataset.targetIndex = index;
+            fileInput.click();
+        });
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                localStorage.removeItem(`rh-avatar-${TEAM_NAMES[index]}`);
+                this.refreshAvatarOnCard(index);
+            });
+        }
     }
 
     buildRoster() {
@@ -582,11 +739,12 @@ class RacingHorseGameInternal {
             card.dataset.index = i;
             card.innerHTML = `
                 <span class="roster-toggle-badge">✔</span>
-                ${this.getHorseSVG(i, 40, 48)}
+                <div class="avatar-wrapper">${this._avatarWrapperContent(i)}</div>
                 <span class="roster-name">${name}</span>
                 <span class="roster-color">${TEAM_COLORS[i]}</span>
             `;
             card.addEventListener('click', () => this.toggleMember(i));
+            this._bindAvatarButtons(card, i);
             container.appendChild(card);
         });
         this.updateSelectionCount();
@@ -825,7 +983,7 @@ class RacingHorseGameInternal {
             horseLane.innerHTML = `
                 <div class="horse-name">${horse.name}</div>
                 <div class="horse horse-running" id="horse-${index}">
-                    <div class="horse-icon">${this.getHorseSVG(horse.colorIndex)}</div>
+                    <div class="horse-icon">${this.getAvatarHTML(horse.colorIndex)}</div>
                 </div>
             `;
             horsesContainer.appendChild(horseLane);
@@ -991,7 +1149,7 @@ class RacingHorseGameInternal {
 
             positionItem.innerHTML = `
                 <span class="result-horse-name">${medal} ${horse.name}</span>
-                <span class="result-horse-info">${this.getHorseSVG(horse.colorIndex, 32, 38)} <span>${horse.color} — #${horse.finishOrder}</span></span>
+                <span class="result-horse-info">${this.getAvatarHTML(horse.colorIndex, 32, 38)} <span>${localStorage.getItem(`rh-avatar-${TEAM_NAMES[horse.colorIndex]}`) ? horse.name : horse.color} — #${horse.finishOrder}</span></span>
             `;
             finalPositions.appendChild(positionItem);
         });
