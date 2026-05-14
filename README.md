@@ -10,7 +10,7 @@ A fun, interactive browser-based horse racing game with custom SVG cartoon horse
 
 - **1–12 Horses**: Pick how many horses compete in each race
 - **Custom Names**: Name every horse before the race starts
-- **Internal Edition**: Fixed roster of 11 team members (alphabetical order) — toggle each member in or out of the race before it starts; upload a personal photo for any member (stored locally in the browser, never sent to a server) which replaces the default horse icon on the track and in results
+- **Internal Edition**: Fixed roster of 11 team members (alphabetical order) — toggle each member in or out of the race before it starts; upload a personal photo for any member (stored locally in the browser, never sent to a server) which replaces the default horse icon on the track and in results. Supported formats: JPEG, PNG, WebP, GIF, SVG (HEIC on Safari/macOS only). Max upload size: 10 MB — images are automatically resized and compressed to ≤200×200 px JPEG before storage, keeping each avatar under ~20 KB regardless of the original file size
 - **Cartoon SVG Horse Heads**: Each horse has a unique hand-drawn SVG face with its own colour palette and facial expression (happy, determined, excited, nervous, cool, surprised, winking, or sleepy)
 - **Physics-Based Racing**: Horses move using a velocity model with smooth randomness — no teleporting, no fixed step sizes. Each horse has a random _volatility_ that determines how erratically it runs
 - **Dramatic Events**: Rare random bursts of speed or stumbles keep the race unpredictable

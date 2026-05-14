@@ -669,12 +669,34 @@ class RacingHorseGameInternal {
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
+            // Hard reject anything over 10 MB before even reading it
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Image is too large (max 10 MB). Please choose a smaller file.');
+                fileInput.value = '';
+                return;
+            }
             const reader = new FileReader();
             reader.onload = (ev) => {
-                const dataURL = ev.target.result;
                 const idx = parseInt(fileInput.dataset.targetIndex);
-                localStorage.setItem(`rh-avatar-${TEAM_NAMES[idx]}`, dataURL);
-                this.refreshAvatarOnCard(idx);
+                // Resize + compress to at most 200×200 px JPEG (quality 0.82)
+                // This keeps each avatar under ~15 KB regardless of the original size
+                const img = new Image();
+                img.onload = () => {
+                    const MAX = 200;
+                    const scale = Math.min(MAX / img.width, MAX / img.height, 1);
+                    const canvas = document.createElement('canvas');
+                    canvas.width  = Math.round(img.width  * scale);
+                    canvas.height = Math.round(img.height * scale);
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.82);
+                    try {
+                        localStorage.setItem(`rh-avatar-${TEAM_NAMES[idx]}`, compressed);
+                        this.refreshAvatarOnCard(idx);
+                    } catch (err) {
+                        alert('Could not save the photo — browser storage is full. Try removing another member\'s photo first.');
+                    }
+                };
+                img.src = ev.target.result;
             };
             reader.readAsDataURL(file);
             // Reset so the same file can be re-uploaded if needed
